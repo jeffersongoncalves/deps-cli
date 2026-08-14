@@ -1,0 +1,55 @@
+{
+    "name": "jeffersongoncalves/deps-cli",
+    "description": "CLI tool to detect and install project dependencies (Composer, npm, pnpm) and run their build scripts.",
+    "keywords": ["cli", "composer", "npm", "pnpm", "install", "build", "dependencies"],
+    "homepage": "https://github.com/jeffersongoncalves/deps-cli",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jefferson Goncalves",
+            "email": "jeffersongoncalves@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "jeffersongoncalves/laravel-zero-console": "^1.0",
+        "laravel-zero/framework": "^12.0",
+        "laravel/pint": "^1.25",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^3.8|^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "build": ["php deps app:build deps"],
+        "lint": "./vendor/bin/pint",
+        "test:lint": "./vendor/bin/pint --test",
+        "test:unit": "./vendor/bin/pest --parallel",
+        "test": [
+            "@test:unit",
+            "@test:lint"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "bin": ["builds/deps"]
+}
