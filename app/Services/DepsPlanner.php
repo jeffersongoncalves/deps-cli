@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\DepsStep;
+use App\Enums\DepsStepKey;
 
 class DepsPlanner
 {
@@ -10,33 +11,52 @@ class DepsPlanner
      * Detect composer.json/package.json/lockfiles in $cwd and return the
      * ordered list of install/build steps to run.
      *
+     * @param  list<string>  $skip  DepsStepKey values to leave out
+     * @param  list<string>  $extraRun  extra commands appended at the end, always run
      * @return list<DepsStep>
      */
-    public function plan(string $cwd): array
+    public function plan(string $cwd, array $skip = [], array $extraRun = []): array
     {
         $steps = [];
 
         if (is_file($cwd.'/composer.json')) {
-            $steps[] = new DepsStep('composer install', 'composer install');
-            $steps[] = new DepsStep('composer run post-update-cmd', 'composer run post-update-cmd');
+            $this->push($steps, $skip, DepsStepKey::ComposerInstall, 'composer install', 'composer install');
+            $this->push($steps, $skip, DepsStepKey::ComposerPostUpdate, 'composer run post-update-cmd', 'composer run post-update-cmd');
         }
 
         if (is_file($cwd.'/package.json')) {
             if (is_file($cwd.'/package-lock.json')) {
-                $steps[] = new DepsStep('npm install', 'npm install');
+                $this->push($steps, $skip, DepsStepKey::NpmInstall, 'npm install', 'npm install');
             }
 
             if ($this->hasBuildScript($cwd.'/package.json')) {
-                $steps[] = new DepsStep('npm run build', 'npm run build');
+                $this->push($steps, $skip, DepsStepKey::NpmBuild, 'npm run build', 'npm run build');
             }
         }
 
         if (is_file($cwd.'/pnpm-lock.yaml')) {
-            $steps[] = new DepsStep('pnpm install', 'pnpm install');
-            $steps[] = new DepsStep('pnpm run build', 'pnpm run build');
+            $this->push($steps, $skip, DepsStepKey::PnpmInstall, 'pnpm install', 'pnpm install');
+            $this->push($steps, $skip, DepsStepKey::PnpmBuild, 'pnpm run build', 'pnpm run build');
+        }
+
+        foreach ($extraRun as $command) {
+            $steps[] = new DepsStep("run: {$command}", $command);
         }
 
         return $steps;
+    }
+
+    /**
+     * @param  list<DepsStep>  $steps
+     * @param  list<string>  $skip
+     */
+    private function push(array &$steps, array $skip, DepsStepKey $key, string $label, string $command): void
+    {
+        if (in_array($key->value, $skip, true)) {
+            return;
+        }
+
+        $steps[] = new DepsStep($label, $command, $key);
     }
 
     private function hasBuildScript(string $packageJsonPath): bool

@@ -66,13 +66,52 @@ and exits successfully — safe to run against any directory.
 Execution stops at the first step that fails (non-zero exit code), and its
 full stdout/stderr is streamed live to the terminal as it runs.
 
+## Configuration
+
+Skip specific steps or append extra commands, at two levels:
+
+- **Global** — `~/.deps-cli/config.json`, the default for every directory.
+- **Per-repo** — `~/.config/deps-cli/<slug>.json` (XDG-aware), keyed by the
+  origin remote (`owner-repo`) or, without a remote, the directory name
+  plus a short hash. When a repo defines its own `skip` or `run`, it
+  **replaces** the global value for that key entirely (no merging).
+
+```bash
+# Never run npm's build step, everywhere
+deps config:skip npm.build --global
+
+# For this repo only, also skip composer's post-update-cmd
+deps config:skip composer.post-update-cmd
+
+# Always run an extra command after the detected steps (this repo only)
+deps config:run 'php artisan key:generate'
+
+# Undo either one
+deps config:unskip composer.post-update-cmd
+deps config:unrun 'php artisan key:generate'
+
+# Inspect global / repo / effective (resolved) config
+deps config:show
+
+# Ignore config for a single run
+deps install --no-config
+```
+
+Valid skip steps: `composer.install`, `composer.post-update-cmd`,
+`npm.install`, `npm.build`, `pnpm.install`, `pnpm.build`.
+
+Pass `--global` to any `config:*` command to target the global file instead
+of the current directory's.
+
 ## How it works
 
-`App\Services\DepsPlanner::plan()` is a pure function: given a directory, it
-only reads the marker files above and returns the ordered list of steps —
-no process execution, no side effects. `App\Commands\InstallCommand` takes
-that plan and, unless `--dry-run` is passed, runs each step with Symfony
-Process (no timeout, live-streamed output) inside the target directory.
+`App\Services\DepsPlanner::plan()` is a pure function: given a directory, a
+skip list, and extra run commands, it only reads the marker files above and
+returns the ordered list of steps — no process execution, no side effects.
+`App\Commands\InstallCommand` resolves the effective skip/run config via
+`App\Services\DepsConfigService`, builds the plan, and — unless `--dry-run`
+is passed — runs each step with Symfony Process (no timeout, live-streamed
+output) inside the target directory.
 
 ## Development
 

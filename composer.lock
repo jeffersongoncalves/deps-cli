@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0cc79bfb5b826903f04b1f0cb6d60dc1",
+    "content-hash": "4e4660892547d65bdd35f3ed1f183312",
     "packages": [],
     "packages-dev": [
         {
@@ -2230,6 +2230,190 @@
                 }
             ],
             "time": "2026-06-23T01:22:34+00:00"
+        },
+        {
+            "name": "jeffersongoncalves/laravel-zero-git",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jeffersongoncalves/laravel-zero-git.git",
+                "reference": "a0285e2b0799b31d7e0f2b09e3d8b9e96601f845"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jeffersongoncalves/laravel-zero-git/zipball/a0285e2b0799b31d7e0f2b09e3d8b9e96601f845",
+                "reference": "a0285e2b0799b31d7e0f2b09e3d8b9e96601f845",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.25",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^3.8|^4.1",
+                "phpstan/phpstan": "^2.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JeffersonGoncalves\\LaravelZero\\Git\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jefferson Goncalves",
+                    "email": "jeffersongoncalves@users.noreply.github.com"
+                }
+            ],
+            "description": "Detect the current repository from the git remote: parse SSH/HTTPS remote URLs into host/owner/repo and build a stable slug, used by CLIs that auto-detect their workspace/repo.",
+            "homepage": "https://github.com/jeffersongoncalves/laravel-zero-git",
+            "keywords": [
+                "cli",
+                "git",
+                "laravel-zero",
+                "remote",
+                "repository",
+                "slug"
+            ],
+            "support": {
+                "issues": "https://github.com/jeffersongoncalves/laravel-zero-git/issues",
+                "source": "https://github.com/jeffersongoncalves/laravel-zero-git/tree/v1.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/jeffersongoncalves",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-06-23T01:17:31+00:00"
+        },
+        {
+            "name": "jeffersongoncalves/laravel-zero-json-config",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jeffersongoncalves/laravel-zero-json-config.git",
+                "reference": "37a702fad7bfc6ff1ea7a18cbd86ef86dcf19b6d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jeffersongoncalves/laravel-zero-json-config/zipball/37a702fad7bfc6ff1ea7a18cbd86ef86dcf19b6d",
+                "reference": "37a702fad7bfc6ff1ea7a18cbd86ef86dcf19b6d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.25",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^3.8|^4.1",
+                "phpstan/phpstan": "^2.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JeffersonGoncalves\\LaravelZero\\JsonConfig\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jefferson Goncalves",
+                    "email": "jeffersongoncalves@users.noreply.github.com"
+                }
+            ],
+            "description": "Base JSON configuration service for CLIs, with scope strategies (global, per-repo, per-project), get/set/all and 0600 writes.",
+            "homepage": "https://github.com/jeffersongoncalves/laravel-zero-json-config",
+            "keywords": [
+                "cli",
+                "config",
+                "configuration",
+                "json",
+                "laravel-zero"
+            ],
+            "support": {
+                "issues": "https://github.com/jeffersongoncalves/laravel-zero-json-config/issues",
+                "source": "https://github.com/jeffersongoncalves/laravel-zero-json-config/tree/v1.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/jeffersongoncalves",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-06-23T01:17:40+00:00"
+        },
+        {
+            "name": "jeffersongoncalves/laravel-zero-self-update",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jeffersongoncalves/laravel-zero-self-update.git",
+                "reference": "b39bc9c758136f3bf82b95e95d626662617ddb82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jeffersongoncalves/laravel-zero-self-update/zipball/b39bc9c758136f3bf82b95e95d626662617ddb82",
+                "reference": "b39bc9c758136f3bf82b95e95d626662617ddb82",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.10",
+                "illuminate/console": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel-zero/framework": "^12.0",
+                "laravel/pint": "^1.25",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^3.8|^4.1",
+                "phpstan/phpstan": "^2.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JeffersonGoncalves\\LaravelZero\\SelfUpdate\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jefferson Goncalves",
+                    "email": "jeffersongoncalves@users.noreply.github.com"
+                }
+            ],
+            "description": "Reusable self-update service and base command for Laravel Zero CLIs distributed as a PHAR via GitHub Releases.",
+            "homepage": "https://github.com/jeffersongoncalves/laravel-zero-self-update",
+            "keywords": [
+                "cli",
+                "github-releases",
+                "laravel-zero",
+                "phar",
+                "self-update"
+            ],
+            "support": {
+                "issues": "https://github.com/jeffersongoncalves/laravel-zero-self-update/issues",
+                "source": "https://github.com/jeffersongoncalves/laravel-zero-self-update/tree/v1.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/jeffersongoncalves",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-06-23T01:17:52+00:00"
         },
         {
             "name": "jolicode/jolinotif",

@@ -75,3 +75,23 @@ it('combines composer, npm, and pnpm steps in order', function () {
         'pnpm run build',
     ]);
 });
+
+it('leaves out steps that are in the skip list', function () {
+    file_put_contents($this->tmp.'/composer.json', '{}');
+
+    $steps = (new DepsPlanner)->plan($this->tmp, skip: ['composer.post-update-cmd']);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe(['composer install']);
+});
+
+it('appends extra run commands after the detected steps', function () {
+    file_put_contents($this->tmp.'/composer.json', '{}');
+
+    $steps = (new DepsPlanner)->plan($this->tmp, extraRun: ['php artisan key:generate']);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe([
+        'composer install',
+        'composer run post-update-cmd',
+        'php artisan key:generate',
+    ]);
+});

@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Services\DepsConfigService;
 use App\Services\DepsPlanner;
 use JeffersonGoncalves\LaravelZero\Console\ResolvesPath;
 use LaravelZero\Framework\Commands\Command;
@@ -13,11 +14,12 @@ class InstallCommand extends Command
 
     protected $signature = 'install
         {path? : Path to the project directory (defaults to the current directory)}
-        {--dry-run : Show the detected steps without running them}';
+        {--dry-run : Show the detected steps without running them}
+        {--no-config : Ignore the global/per-repo config (skip + run) for this run}';
 
     protected $description = 'Detect composer.json/package.json/pnpm-lock.yaml and run install + build steps';
 
-    public function handle(DepsPlanner $planner): int
+    public function handle(DepsPlanner $planner, DepsConfigService $config): int
     {
         $cwd = $this->resolvePath($this->argument('path'));
 
@@ -27,7 +29,11 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        $steps = $planner->plan($cwd);
+        $useConfig = ! $this->option('no-config');
+        $skip = $useConfig ? $config->resolveSkip($cwd) : [];
+        $extraRun = $useConfig ? $config->resolveRun($cwd) : [];
+
+        $steps = $planner->plan($cwd, $skip, $extraRun);
 
         if ($steps === []) {
             $this->components->info('Nothing to do — no composer.json, package.json, or pnpm-lock.yaml found.');
