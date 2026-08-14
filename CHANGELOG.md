@@ -2,6 +2,10 @@
 
 All notable changes to `deps-cli` will be documented in this file.
 
+## v1.1.0 - 2026-08-14
+
+Release v1.1.0
+
 ## v1.0.0 - 2026-08-14
 
 Initial release. Detects `composer.json`, `package.json`, and lockfiles in a
