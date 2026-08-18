@@ -2,6 +2,10 @@
 
 All notable changes to `deps-cli` will be documented in this file.
 
+## v1.1.1 - 2026-08-18
+
+Release v1.1.1
+
 ## v1.1.0 - 2026-08-14
 
 Release v1.1.0
