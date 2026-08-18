@@ -12,7 +12,7 @@ class SkipCommand extends Command
     use ResolvesRepoPath;
 
     protected $signature = 'config:skip
-        {step : Step to skip (composer.install, composer.post-update-cmd, npm.install, npm.build, pnpm.install, pnpm.build)}
+        {step : Step to skip (composer.install, composer.post-update-cmd, npm.install, npm.build, pnpm.install, pnpm.build, yarn.install, yarn.build, bun.install, bun.build)}
         {path? : Path to the project directory (defaults to the current directory)}
         {--global : Write to the global config instead of this repo}';
 

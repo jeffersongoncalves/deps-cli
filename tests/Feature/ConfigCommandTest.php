@@ -36,8 +36,8 @@ afterEach(function () {
 });
 
 it('rejects an unknown step', function () {
-    $this->artisan('config:skip', ['step' => 'yarn.install', 'path' => $this->repoDir])
-        ->expectsOutputToContain("Unknown step 'yarn.install'")
+    $this->artisan('config:skip', ['step' => 'deno.install', 'path' => $this->repoDir])
+        ->expectsOutputToContain("Unknown step 'deno.install'")
         ->assertExitCode(1);
 });
 

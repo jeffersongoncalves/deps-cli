@@ -10,4 +10,8 @@ enum DepsStepKey: string
     case NpmBuild = 'npm.build';
     case PnpmInstall = 'pnpm.install';
     case PnpmBuild = 'pnpm.build';
+    case YarnInstall = 'yarn.install';
+    case YarnBuild = 'yarn.build';
+    case BunInstall = 'bun.install';
+    case BunBuild = 'bun.build';
 }

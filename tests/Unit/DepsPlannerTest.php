@@ -39,15 +39,32 @@ it('plans npm install only when package-lock.json is present', function () {
     expect(array_map(fn ($s) => $s->command, $steps))->toBe(['npm install']);
 });
 
-it('plans npm run build only when package.json declares a build script', function () {
+it('plans nothing when package.json has no lockfile and no manager is given', function () {
     file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
 
     $steps = (new DepsPlanner)->plan($this->tmp);
 
-    expect(array_map(fn ($s) => $s->command, $steps))->toBe(['npm run build']);
+    expect($steps)->toBe([]);
 });
 
-it('plans pnpm install and build when pnpm-lock.yaml is present', function () {
+it('plans install and build with the given manager when package.json has no lockfile', function () {
+    file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
+
+    $steps = (new DepsPlanner)->plan($this->tmp, packageManager: 'npm');
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe(['npm install', 'npm run build']);
+});
+
+it('plans pnpm install when pnpm-lock.yaml is present without a package.json', function () {
+    file_put_contents($this->tmp.'/pnpm-lock.yaml', 'lockfileVersion: 6');
+
+    $steps = (new DepsPlanner)->plan($this->tmp);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe(['pnpm install']);
+});
+
+it('plans pnpm install and build when pnpm-lock.yaml and a build script are present', function () {
+    file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
     file_put_contents($this->tmp.'/pnpm-lock.yaml', 'lockfileVersion: 6');
 
     $steps = (new DepsPlanner)->plan($this->tmp);
@@ -55,6 +72,30 @@ it('plans pnpm install and build when pnpm-lock.yaml is present', function () {
     expect(array_map(fn ($s) => $s->command, $steps))->toBe([
         'pnpm install',
         'pnpm run build',
+    ]);
+});
+
+it('plans yarn install and build when yarn.lock is present', function () {
+    file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
+    file_put_contents($this->tmp.'/yarn.lock', '# yarn lockfile v1');
+
+    $steps = (new DepsPlanner)->plan($this->tmp);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe([
+        'yarn install',
+        'yarn run build',
+    ]);
+});
+
+it('plans bun install and build when bun.lock is present', function () {
+    file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
+    file_put_contents($this->tmp.'/bun.lock', '{}');
+
+    $steps = (new DepsPlanner)->plan($this->tmp);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe([
+        'bun install',
+        'bun run build',
     ]);
 });
 

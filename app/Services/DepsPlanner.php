@@ -13,9 +13,11 @@ class DepsPlanner
      *
      * @param  list<string>  $skip  DepsStepKey values to leave out
      * @param  list<string>  $extraRun  extra commands appended at the end, always run
+     * @param  'npm'|'pnpm'|'yarn'|'bun'|null  $packageManager  which manager to use when
+     *                                                          package.json has no lockfile from any manager
      * @return list<DepsStep>
      */
-    public function plan(string $cwd, array $skip = [], array $extraRun = []): array
+    public function plan(string $cwd, array $skip = [], array $extraRun = [], ?string $packageManager = null): array
     {
         $steps = [];
 
@@ -24,19 +26,33 @@ class DepsPlanner
             $this->push($steps, $skip, DepsStepKey::ComposerPostUpdate, 'composer run post-update-cmd', 'composer run post-update-cmd');
         }
 
-        if (is_file($cwd.'/package.json')) {
-            if (is_file($cwd.'/package-lock.json')) {
-                $this->push($steps, $skip, DepsStepKey::NpmInstall, 'npm install', 'npm install');
-            }
+        $hasPackageJson = is_file($cwd.'/package.json');
+        $hasBuildScript = $hasPackageJson && $this->hasBuildScript($cwd.'/package.json');
 
-            if ($this->hasBuildScript($cwd.'/package.json')) {
-                $this->push($steps, $skip, DepsStepKey::NpmBuild, 'npm run build', 'npm run build');
-            }
+        $detected = array_keys(array_filter([
+            'npm' => is_file($cwd.'/package-lock.json'),
+            'pnpm' => is_file($cwd.'/pnpm-lock.yaml'),
+            'yarn' => is_file($cwd.'/yarn.lock'),
+            'bun' => is_file($cwd.'/bun.lockb') || is_file($cwd.'/bun.lock'),
+        ]));
+
+        if ($detected === [] && $hasPackageJson && $packageManager !== null) {
+            $detected = [$packageManager];
         }
 
-        if (is_file($cwd.'/pnpm-lock.yaml')) {
-            $this->push($steps, $skip, DepsStepKey::PnpmInstall, 'pnpm install', 'pnpm install');
-            $this->push($steps, $skip, DepsStepKey::PnpmBuild, 'pnpm run build', 'pnpm run build');
+        foreach ($detected as $manager) {
+            [$installKey, $buildKey] = match ($manager) {
+                'npm' => [DepsStepKey::NpmInstall, DepsStepKey::NpmBuild],
+                'pnpm' => [DepsStepKey::PnpmInstall, DepsStepKey::PnpmBuild],
+                'yarn' => [DepsStepKey::YarnInstall, DepsStepKey::YarnBuild],
+                'bun' => [DepsStepKey::BunInstall, DepsStepKey::BunBuild],
+            };
+
+            $this->push($steps, $skip, $installKey, "{$manager} install", "{$manager} install");
+
+            if ($hasBuildScript) {
+                $this->push($steps, $skip, $buildKey, "{$manager} run build", "{$manager} run build");
+            }
         }
 
         foreach ($extraRun as $command) {

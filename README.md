@@ -16,7 +16,7 @@ other CLIs in this monorepo.
 ## Requirements
 
 - PHP `^8.2`
-- `composer`/`npm`/`pnpm` on `PATH`, as needed by the detected project
+- `composer`/`npm`/`pnpm`/`yarn`/`bun` on `PATH`, as needed by the detected project
 
 ## Install
 
@@ -48,6 +48,9 @@ deps install /path/to/project
 
 # Show the detected steps without running them
 deps install --dry-run
+
+# Pick the manager explicitly, skipping the interactive prompt
+deps install --package-manager=pnpm
 ```
 
 ## Detection rules
@@ -56,9 +59,25 @@ Each rule is independent — a directory can trigger several of them at once,
 and steps run in this order:
 
 1. `composer.json` present → `composer install`, then `composer run post-update-cmd`
-2. `package.json` present **and** `package-lock.json` present → `npm install`
-3. `package.json` declares a `scripts.build` entry → `npm run build`
-4. `pnpm-lock.yaml` present → `pnpm install`, then `pnpm run build`
+2. `package.json` present **and** a lockfile matches one of the JS package
+   managers below → `<manager> install`, then, if `package.json` declares a
+   `scripts.build` entry, `<manager> run build`
+
+| Manager | Lockfile |
+|---------|----------|
+| npm | `package-lock.json` |
+| pnpm | `pnpm-lock.yaml` |
+| yarn | `yarn.lock` |
+| bun | `bun.lock` or `bun.lockb` |
+
+More than one lockfile can be present at once (e.g. a repo mid-migration
+from npm to pnpm) — each detected manager gets its own install/build steps.
+
+If `package.json` exists but **no** lockfile is found, `deps` prompts you to
+pick a manager (defaulting to whichever of npm/pnpm/yarn/bun is actually on
+`PATH`) instead of silently guessing or skipping the step. Pass
+`--package-manager=npm|pnpm|yarn|bun` to answer that upfront and skip the
+prompt (required for non-interactive/CI use).
 
 If none of the marker files are found, the command reports "Nothing to do"
 and exits successfully — safe to run against any directory.
@@ -98,7 +117,8 @@ deps install --no-config
 ```
 
 Valid skip steps: `composer.install`, `composer.post-update-cmd`,
-`npm.install`, `npm.build`, `pnpm.install`, `pnpm.build`.
+`npm.install`, `npm.build`, `pnpm.install`, `pnpm.build`,
+`yarn.install`, `yarn.build`, `bun.install`, `bun.build`.
 
 Pass `--global` to any `config:*` command to target the global file instead
 of the current directory's.
@@ -106,12 +126,15 @@ of the current directory's.
 ## How it works
 
 `App\Services\DepsPlanner::plan()` is a pure function: given a directory, a
-skip list, and extra run commands, it only reads the marker files above and
+skip list, extra run commands, and (only used when `package.json` has no
+lockfile) a chosen package manager, it only reads the marker files above and
 returns the ordered list of steps — no process execution, no side effects.
 `App\Commands\InstallCommand` resolves the effective skip/run config via
-`App\Services\DepsConfigService`, builds the plan, and — unless `--dry-run`
-is passed — runs each step with Symfony Process (no timeout, live-streamed
-output) inside the target directory.
+`App\Services\DepsConfigService`, prompts for a package manager when needed
+(defaulting to whatever `Symfony\Component\Process\ExecutableFinder` finds
+on `PATH`), builds the plan, and — unless `--dry-run` is passed — runs each
+step with Symfony Process (no timeout, live-streamed output) inside the
+target directory.
 
 ## Development
 
