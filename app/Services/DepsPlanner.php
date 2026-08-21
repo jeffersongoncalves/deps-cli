@@ -23,7 +23,10 @@ class DepsPlanner
 
         if (is_file($cwd.'/composer.json')) {
             $this->push($steps, $skip, DepsStepKey::ComposerInstall, 'composer install', 'composer install');
-            $this->push($steps, $skip, DepsStepKey::ComposerPostUpdate, 'composer run post-update-cmd', 'composer run post-update-cmd');
+
+            if ($this->hasComposerScript($cwd.'/composer.json', 'post-update-cmd')) {
+                $this->push($steps, $skip, DepsStepKey::ComposerPostUpdate, 'composer run post-update-cmd', 'composer run post-update-cmd');
+            }
         }
 
         $hasPackageJson = is_file($cwd.'/package.json');
@@ -86,5 +89,18 @@ class DepsPlanner
         $decoded = json_decode($contents, true);
 
         return is_array($decoded) && isset($decoded['scripts']['build']);
+    }
+
+    private function hasComposerScript(string $composerJsonPath, string $scriptName): bool
+    {
+        $contents = file_get_contents($composerJsonPath);
+
+        if ($contents === false) {
+            return false;
+        }
+
+        $decoded = json_decode($contents, true);
+
+        return is_array($decoded) && isset($decoded['scripts'][$scriptName]);
     }
 }

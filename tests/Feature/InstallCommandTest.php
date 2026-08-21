@@ -20,7 +20,7 @@ it('reports nothing to do for an empty directory', function () {
 });
 
 it('dry-run lists the detected steps without running them', function () {
-    file_put_contents($this->tmp.'/composer.json', '{}');
+    file_put_contents($this->tmp.'/composer.json', json_encode(['scripts' => ['post-update-cmd' => 'SomeClass::postUpdate']]));
     file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
     file_put_contents($this->tmp.'/pnpm-lock.yaml', 'lockfileVersion: 6');
 

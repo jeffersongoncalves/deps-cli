@@ -19,8 +19,18 @@ it('returns no steps for an empty directory', function () {
     expect((new DepsPlanner)->plan($this->tmp))->toBe([]);
 });
 
-it('plans composer install and post-update-cmd when composer.json exists', function () {
+it('plans composer install only when composer.json has no post-update-cmd script', function () {
     file_put_contents($this->tmp.'/composer.json', '{}');
+
+    $steps = (new DepsPlanner)->plan($this->tmp);
+
+    expect(array_map(fn ($s) => $s->command, $steps))->toBe([
+        'composer install',
+    ]);
+});
+
+it('plans composer install and post-update-cmd when composer.json defines the script', function () {
+    file_put_contents($this->tmp.'/composer.json', json_encode(['scripts' => ['post-update-cmd' => 'SomeClass::postUpdate']]));
 
     $steps = (new DepsPlanner)->plan($this->tmp);
 
@@ -100,7 +110,7 @@ it('plans bun install and build when bun.lock is present', function () {
 });
 
 it('combines composer, npm, and pnpm steps in order', function () {
-    file_put_contents($this->tmp.'/composer.json', '{}');
+    file_put_contents($this->tmp.'/composer.json', json_encode(['scripts' => ['post-update-cmd' => 'SomeClass::postUpdate']]));
     file_put_contents($this->tmp.'/package.json', json_encode(['scripts' => ['build' => 'vite build']]));
     file_put_contents($this->tmp.'/package-lock.json', '{}');
     file_put_contents($this->tmp.'/pnpm-lock.yaml', 'lockfileVersion: 6');
@@ -118,7 +128,7 @@ it('combines composer, npm, and pnpm steps in order', function () {
 });
 
 it('leaves out steps that are in the skip list', function () {
-    file_put_contents($this->tmp.'/composer.json', '{}');
+    file_put_contents($this->tmp.'/composer.json', json_encode(['scripts' => ['post-update-cmd' => 'SomeClass::postUpdate']]));
 
     $steps = (new DepsPlanner)->plan($this->tmp, skip: ['composer.post-update-cmd']);
 
@@ -126,7 +136,7 @@ it('leaves out steps that are in the skip list', function () {
 });
 
 it('appends extra run commands after the detected steps', function () {
-    file_put_contents($this->tmp.'/composer.json', '{}');
+    file_put_contents($this->tmp.'/composer.json', json_encode(['scripts' => ['post-update-cmd' => 'SomeClass::postUpdate']]));
 
     $steps = (new DepsPlanner)->plan($this->tmp, extraRun: ['php artisan key:generate']);
 
