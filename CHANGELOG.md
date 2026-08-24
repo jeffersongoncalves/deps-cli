@@ -1,20 +1,51 @@
 # Changelog
 
-All notable changes to `deps-cli` will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-## v1.1.2 - 2026-08-21
+## [1.1.3] - 2026-08-24
 
-Release v1.1.2
+### CI/CD
 
-## v1.1.1 - 2026-08-18
+- **release:** Generate CHANGELOG.md and release notes with git-cliff
 
-Release v1.1.1
+### Features
 
-## v1.1.0 - 2026-08-14
+- Copy .env from main worktree before install when run from a linked git worktree
 
-Release v1.1.0
+## [1.1.2] - 2026-08-21
 
-## v1.0.0 - 2026-08-14
+### Bug Fixes
 
-Initial release. Detects `composer.json`, `package.json`, and lockfiles in a
-directory, then runs the matching install/build commands.
+- Only queue composer post-update-cmd when the script is defined
+
+## [1.1.1] - 2026-08-18
+
+### Features
+
+- Support yarn and bun, ask before guessing on ambiguous package.json
+
+## [1.1.0] - 2026-08-14
+
+### Features
+
+- Add self-update and global/per-repo config
+
+## [1.0.0] - 2026-08-14
+
+### CI/CD
+
+- Add run-tests, code-style, and release workflows
+
+### Documentation
+
+- Add portfolio banner and expand README
+
+### Other
+
+- Initial commit
+
+CLI tool that detects composer.json/package.json/pnpm-lock.yaml in a
+directory and runs the matching install/build commands. Built with
+Laravel Zero, modeled on the other CLIs in this monorepo.
+
+
