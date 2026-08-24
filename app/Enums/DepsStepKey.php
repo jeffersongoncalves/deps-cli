@@ -14,4 +14,5 @@ enum DepsStepKey: string
     case YarnBuild = 'yarn.build';
     case BunInstall = 'bun.install';
     case BunBuild = 'bun.build';
+    case EnvCopy = 'env.copy';
 }

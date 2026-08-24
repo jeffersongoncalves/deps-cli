@@ -10,5 +10,6 @@ final readonly class DepsStep
         public string $label,
         public string $command,
         public ?DepsStepKey $key = null,
+        public ?string $source = null,
     ) {}
 }

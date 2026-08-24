@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Enums\DepsStepKey;
 use App\Services\DepsConfigService;
 use App\Services\DepsPlanner;
 use JeffersonGoncalves\LaravelZero\Console\ResolvesPath;
@@ -78,6 +79,16 @@ class InstallCommand extends Command
         foreach ($steps as $step) {
             $this->newLine();
             $this->components->info($step->label);
+
+            if ($step->key === DepsStepKey::EnvCopy) {
+                if ($step->source === null || ! copy($step->source, $cwd.'/.env')) {
+                    $this->components->error("Failed: {$step->label}");
+
+                    return self::FAILURE;
+                }
+
+                continue;
+            }
 
             $process = Process::fromShellCommandline($step->command, $cwd);
             $process->setTimeout(null);

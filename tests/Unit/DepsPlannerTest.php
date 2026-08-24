@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\DepsStepKey;
 use App\Services\DepsPlanner;
+use Symfony\Component\Process\Process;
 
 beforeEach(function () {
     $this->tmp = sys_get_temp_dir().'/deps-cli-plan-'.bin2hex(random_bytes(4));
@@ -133,6 +135,35 @@ it('leaves out steps that are in the skip list', function () {
     $steps = (new DepsPlanner)->plan($this->tmp, skip: ['composer.post-update-cmd']);
 
     expect(array_map(fn ($s) => $s->command, $steps))->toBe(['composer install']);
+});
+
+it('adds an env-copy step before install steps when run from a linked git worktree', function () {
+    $main = sys_get_temp_dir().'/deps-cli-wt-main-'.bin2hex(random_bytes(4));
+    $worktree = sys_get_temp_dir().'/deps-cli-wt-linked-'.bin2hex(random_bytes(4));
+    mkdir($main, 0777, true);
+
+    $run = fn (array $args, string $cwd) => (new Process($args, $cwd))->mustRun();
+
+    $run(['git', 'init'], $main);
+    $run(['git', 'config', 'user.email', 'test@example.com'], $main);
+    $run(['git', 'config', 'user.name', 'Test'], $main);
+    file_put_contents($main.'/.env', 'APP_KEY=secret');
+    file_put_contents($main.'/composer.json', '{}');
+    $run(['git', 'add', '.'], $main);
+    $run(['git', 'commit', '-m', 'init'], $main);
+    $run(['git', 'worktree', 'add', $worktree, '-b', 'feature'], $main);
+
+    file_put_contents($worktree.'/composer.json', '{}');
+
+    $steps = (new DepsPlanner)->plan($worktree);
+
+    expect($steps)->toHaveCount(2)
+        ->and($steps[0]->key)->toBe(DepsStepKey::EnvCopy)
+        ->and(realpath($steps[0]->source))->toBe(realpath($main.'/.env'))
+        ->and($steps[1]->command)->toBe('composer install');
+
+    $run(['git', 'worktree', 'remove', $worktree, '--force'], $main);
+    (new Process(['rm', '-rf', $main]))->run();
 });
 
 it('appends extra run commands after the detected steps', function () {
