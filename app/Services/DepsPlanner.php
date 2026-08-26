@@ -107,6 +107,76 @@ class DepsPlanner
     }
 
     /**
+     * Copy $source (main worktree's .env) into $destDir/.env, rewriting APP_URL's
+     * host to match the worktree's folder name — same logic as worktree-env-plugin:
+     * keep scheme/port/path, replace only the subdomain, keep the TLD after the
+     * first dot, fall back to http://{folder}.test when APP_URL is missing/unparsable.
+     */
+    public function applyEnvCopy(string $source, string $destDir): bool
+    {
+        if (! is_file($source)) {
+            return false;
+        }
+
+        $lines = file($source, FILE_IGNORE_NEW_LINES);
+
+        if ($lines === false) {
+            return false;
+        }
+
+        $worktreeFolder = basename(rtrim($destDir, '/\\'));
+        $currentUrl = $this->readEnvValue($lines, 'APP_URL');
+        $newAppUrl = strtolower($currentUrl !== null
+            ? $this->replaceUrlHost($currentUrl, $worktreeFolder)
+            : "http://{$worktreeFolder}.test");
+
+        $updated = array_map(
+            fn (string $line): string => str_starts_with($line, 'APP_URL=') ? "APP_URL={$newAppUrl}" : $line,
+            $lines
+        );
+
+        return file_put_contents($destDir.'/.env', implode("\n", $updated)) !== false;
+    }
+
+    /**
+     * @param  list<string>  $lines
+     */
+    private function readEnvValue(array $lines, string $key): ?string
+    {
+        foreach ($lines as $line) {
+            if (str_starts_with($line, "{$key}=")) {
+                return trim(substr($line, strlen($key) + 1), " \"'");
+            }
+        }
+
+        return null;
+    }
+
+    private function replaceUrlHost(string $url, string $newHost): string
+    {
+        $parts = parse_url($url);
+
+        if ($parts === false || ! isset($parts['host'])) {
+            return "http://{$newHost}.test";
+        }
+
+        $dot = strpos($parts['host'], '.');
+        $newHostname = $dot === false ? $newHost : $newHost.substr($parts['host'], $dot);
+
+        $result = ($parts['scheme'] ?? 'http').'://'.$newHostname;
+
+        if (isset($parts['port'])) {
+            $result .= ':'.$parts['port'];
+        }
+
+        if (isset($parts['path'])) {
+            $result .= $parts['path'];
+        }
+
+        return $result;
+    }
+
+    /**
      * Resolve the main worktree root when $cwd is a linked git worktree,
      * or null when it's not a worktree (or not a git repo at all).
      */

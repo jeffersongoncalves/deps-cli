@@ -81,7 +81,7 @@ class InstallCommand extends Command
             $this->components->info($step->label);
 
             if ($step->key === DepsStepKey::EnvCopy) {
-                if ($step->source === null || ! copy($step->source, $cwd.'/.env')) {
+                if ($step->source === null || ! $planner->applyEnvCopy($step->source, $cwd)) {
                     $this->components->error("Failed: {$step->label}");
 
                     return self::FAILURE;
