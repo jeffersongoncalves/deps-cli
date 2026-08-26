@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4] - 2026-08-26
+
+### Features
+
+- Rewrite APP_URL host when copying .env from main worktree
+
 ## [1.1.3] - 2026-08-24
 
 ### CI/CD
