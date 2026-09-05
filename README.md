@@ -6,6 +6,8 @@
 
 # deps-cli
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/jeffersongoncalves)
+
 CLI tool that detects `composer.json`, `package.json`, and lockfiles in a
 directory and runs the matching install/build commands, in order, so you
 don't have to remember which package manager a given repo uses.
