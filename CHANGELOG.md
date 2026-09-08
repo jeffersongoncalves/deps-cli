@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.5] - 2026-09-08
+
+### Bug Fixes
+
+- **ci:** Publish release as draft until PHAR asset is attached
+
+### Documentation
+
+- Add Buy Me a Coffee sponsor link
+- Standardize README section structure
+
+### Miscellaneous Tasks
+
+- Add GitHub Sponsors to FUNDING.yml
+
 ## [1.1.4] - 2026-08-26
 
 ### Features
