@@ -42,6 +42,18 @@ it('plans composer install and post-update-cmd when composer.json defines the sc
     ]);
 });
 
+it('ignores Unix-only extensions on Windows when a locked package requires them', function () {
+    file_put_contents($this->tmp.'/composer.json', json_encode(['config' => ['platform' => ['ext-posix' => '8.4']]]));
+    file_put_contents($this->tmp.'/composer.lock', json_encode(['packages' => [
+        ['name' => 'laravel/horizon', 'require' => ['php' => '^8.0', 'ext-pcntl' => '*', 'ext-posix' => '*']],
+    ]]));
+
+    expect((new DepsPlanner(windows: true))->plan($this->tmp)[0]->command)
+        ->toBe('composer install --ignore-platform-req=ext-pcntl')
+        ->and((new DepsPlanner(windows: false))->plan($this->tmp)[0]->command)
+        ->toBe('composer install');
+});
+
 it('plans npm install only when package-lock.json is present', function () {
     file_put_contents($this->tmp.'/package.json', '{}');
     file_put_contents($this->tmp.'/package-lock.json', '{}');

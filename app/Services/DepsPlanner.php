@@ -8,6 +8,11 @@ use Symfony\Component\Process\Process;
 
 class DepsPlanner
 {
+    /** Extensions that never exist on Windows PHP builds (required by e.g. laravel/horizon). */
+    private const UNIX_ONLY_EXTENSIONS = ['ext-pcntl', 'ext-posix'];
+
+    public function __construct(private bool $windows = PHP_OS_FAMILY === 'Windows') {}
+
     /**
      * Detect composer.json/package.json/lockfiles in $cwd and return the
      * ordered list of install/build steps to run.
@@ -29,7 +34,12 @@ class DepsPlanner
         }
 
         if (is_file($cwd.'/composer.json')) {
-            $this->push($steps, $skip, DepsStepKey::ComposerInstall, 'composer install', 'composer install');
+            $install = implode(' ', ['composer install', ...array_map(
+                fn (string $ext): string => "--ignore-platform-req={$ext}",
+                $this->missingUnixExtensions($cwd)
+            )]);
+
+            $this->push($steps, $skip, DepsStepKey::ComposerInstall, 'composer install', $install);
 
             if ($this->hasComposerScript($cwd.'/composer.json', 'post-update-cmd')) {
                 $this->push($steps, $skip, DepsStepKey::ComposerPostUpdate, 'composer run post-update-cmd', 'composer run post-update-cmd');
@@ -225,6 +235,37 @@ class DepsPlanner
         $decoded = json_decode($contents, true);
 
         return is_array($decoded) && isset($decoded['scripts']['build']);
+    }
+
+    /**
+     * On Windows, the Unix-only extensions some locked package requires
+     * (e.g. laravel/horizon -> ext-pcntl) that composer.json doesn't
+     * already fake via config.platform — composer install fails without them.
+     *
+     * @return list<string>
+     */
+    private function missingUnixExtensions(string $cwd): array
+    {
+        if (! $this->windows) {
+            return [];
+        }
+
+        $lock = json_decode((string) @file_get_contents($cwd.'/composer.lock'), true);
+        $json = json_decode((string) @file_get_contents($cwd.'/composer.json'), true);
+
+        if (! is_array($lock)) {
+            return [];
+        }
+
+        $required = [];
+
+        foreach ([...($lock['packages'] ?? []), ...($lock['packages-dev'] ?? [])] as $package) {
+            $required = [...$required, ...array_keys($package['require'] ?? [])];
+        }
+
+        $platform = is_array($json) ? array_keys($json['config']['platform'] ?? []) : [];
+
+        return array_values(array_diff(array_intersect(self::UNIX_ONLY_EXTENSIONS, $required), $platform));
     }
 
     private function hasComposerScript(string $composerJsonPath, string $scriptName): bool
