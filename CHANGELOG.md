@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.6] - 2026-09-24
+
+### Bug Fixes
+
+- Ignore Unix-only platform reqs on Windows composer install
+
+### CI/CD
+
+- Pass release version input through env
+- Standardize dependabot config
+- Standardize tests workflow
+- Remove run-tests.yml (replaced by tests.yml)
+- Standardize tests workflow
+
+### Dependencies
+
+- **deps:** Bump orhun/git-cliff-action from 4.8.0 to 4.9.0
+
+### Documentation
+
+- Point tests badge to tests.yml
+
 ## [1.1.5] - 2026-09-08
 
 ### Bug Fixes
