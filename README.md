@@ -19,12 +19,12 @@ other CLIs in this monorepo.
   <a href="https://github.com/jeffersongoncalves/deps-cli/actions"><img src="https://github.com/jeffersongoncalves/deps-cli/actions/workflows/tests.yml/badge.svg" alt="Tests" /></a>
   <a href="https://packagist.org/packages/jeffersongoncalves/deps-cli"><img src="https://img.shields.io/packagist/dt/jeffersongoncalves/deps-cli" alt="Total Downloads" /></a>
   <a href="https://github.com/jeffersongoncalves/deps-cli/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jeffersongoncalves/deps-cli" alt="License" /></a>
-  <img src="https://img.shields.io/badge/php-%3E%3D8.2-8892BF" alt="PHP 8.2+" />
+  <img src="https://img.shields.io/badge/php-%3E%3D8.3-8892BF" alt="PHP 8.3+" />
 </p>
 
 ## Requirements
 
-- PHP `^8.2`
+- PHP `^8.3`
 - `composer`/`npm`/`pnpm`/`yarn`/`bun` on `PATH`, as needed by the detected project
 
 ## Install
