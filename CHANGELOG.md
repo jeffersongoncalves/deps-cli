@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-11-04
+
+### CI/CD
+
+- Auto-merge dependabot github-actions minor/patch
+
+### Dependencies
+
+- **deps:** Bump orhun/git-cliff-action (#10)
+- **deps:** Bump shivammathur/setup-php (#11)
+- **deps:** Bump stefanzweifel/git-auto-commit-action (#13)
+
+### Miscellaneous Tasks
+
+- Upgrade to Laravel Zero 13
+
+### Other
+
+- Auto-assign issues and pull requests
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
 ## [1.1.6] - 2026-09-24
 
 ### Bug Fixes
